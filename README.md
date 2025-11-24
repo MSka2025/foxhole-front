@@ -22,4 +22,4 @@ bash:
 1. npm install
 2. npm run dev
 
-localhost:1573
+localhost:5173
