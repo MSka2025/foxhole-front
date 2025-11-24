@@ -21,4 +21,5 @@ If you are developing a production application, we recommend using TypeScript wi
 bash:
 1. npm install
 2. npm run dev
-3. localhost:1573
+
+localhost:1573
