@@ -135,3 +135,44 @@
   min-height: 350px;
 }
 
+.warstate-chart {
+  display: flex;
+  width: 500px;
+  gap: 40px;
+  justify-content: center;
+  align-items: flex-start;
+  margin-top: 40px;
+  min-height: 350px;
+}
+
+.warstate-and-vt-container {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  justify-content: center;
+  align-items: flex-start;
+  margin-top: 40px;
+  min-height: 350px;
+}
+
+.autocomplete-list {
+  border: 1px solid #444;
+  background: #1b1b1b;
+  max-height: 200px;
+  max-width: 300px;
+  overflow-y: auto;
+  border-radius: 6px;
+  margin-top: 4px;
+  position: absolute;
+  width: 100%;
+  z-index: 20;
+}
+
+.autocomplete-item {
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
+.autocomplete-item:hover {
+  background: #333;
+}
