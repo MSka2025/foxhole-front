@@ -45,6 +45,17 @@
   color: white;
 }
 
+.input-group select {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #444;
+  width: 160px; /* select powinien być szerszy niż input */
+  background: #1e1e1e;
+  color: white;
+  cursor: pointer;
+}
+
+
 .fetch-button {
   align-self: end;
   padding: 10px 25px;
