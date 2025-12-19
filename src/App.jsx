@@ -10,9 +10,11 @@ import { fetchShardInfo } from "./app/api/shard";
 import { fetchMapReportRange } from "./app/api/mapReportRange";
 import MapReportRangeChart from "./components/MapReportRangeChart";
 import Aurora from "./components/Aurora";
+import AboutPage from "./components/AboutPage";
 import "./App.css";
 
 export default function App() {
+  const [page, setPage] = useState("dashboard");
   const [selectedHexId, setSelectedHexId] = useState(null);
   const [report, setReport] = useState(null);
   const [hexInfo, setHexInfo] = useState(null);
@@ -185,108 +187,91 @@ export default function App() {
   };
 
   return (
-    <div className="app-container">
+    <>
       <Aurora colorStops={["#3A29FF", "#FF94B4", "#FF3232"]} blend={0.5} amplitude={1.0} speed={0.5} />
-
-      <div className="main-panel">
-        <h1 className="main-title">Foxhole War Tracker</h1>
-
-        <div className="input-panel">
-          {/* Shard */}
-          <div className="input-group" style={{ position: "relative" }}>
-            <label>Shard:</label>
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <button className="shard-button" onClick={() => updateShard(shardId - 1)}>
-                -
-              </button>
-              <div style={{ minWidth: "100px", textAlign: "center" }}>
-                {shardInfo?.name || "(brak)"}
+      <div className="app-container">
+        <div style={{position: 'relative', zIndex: 1, width: '100%'}}>
+          {page === "about" ? (
+            <AboutPage />
+          ) : (
+            <>
+              <div className="main-panel">
+                {/* Shard, Hex, Time Range, Fetch Button */}
+                <div className="input-panel">
+                  <div className="input-group" style={{ position: "relative" }}>
+                    <label>Shard:</label>
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                      <button className="shard-button" onClick={() => updateShard(shardId - 1)}>-</button>
+                      <div style={{ minWidth: "100px", textAlign: "center" }}>{shardInfo?.name || "(brak)"}</div>
+                      <button className="shard-button" onClick={() => updateShard(shardId + 1)}>+</button>
+                    </div>
+                  </div>
+                  <div className="input-group">
+                    <label>Hex:</label>
+                    <select value={selectedHexId || ""} onChange={e => setSelectedHexId(Number(e.target.value))}>
+                      <option value="">Wybierz hex...</option>
+                      {hexList.map(hex => (
+                        <option key={hex.id} value={hex.id}>{hex.name} (ID: {hex.id})</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="input-group">
+                    <label>Zakres czasu:</label>
+                    <select
+                      value={timeRange}
+                      onChange={e => setTimeRange(e.target.value)}
+                      style={{ padding: "10px", borderRadius: "8px", border: "1px solid #444", background: "#1e1e1e", color: "white", width: "150px" }}
+                    >
+                      <option value="all">Cała wojna</option>
+                      <option value="7d">Ostatnie 7 aktualizacji</option>
+                      <option value="30d">Ostatnie 15 aktualizacji</option>
+                      <option value="90d">Ostatnie 30 aktualizacji</option>
+                    </select>
+                  </div>
+                  <button
+                    className="fetch-button"
+                    onClick={handleFetch}
+                    disabled={loading || loadingWar || loadingVictory}
+                  >
+                    {loading ? "Ładowanie..." : "Pobierz"}
+                  </button>
+                  {error && <p className="status-error">{error}</p>}
+                  {errorWar && <p className="status-error">{errorWar}</p>}
+                  {errorVictory && <p className="status-error">{errorVictory}</p>}
+                </div>
               </div>
-              <button className="shard-button" onClick={() => updateShard(shardId + 1)}>
-                +
-              </button>
-            </div>
-          </div>
-
-          {/* Hex */}
-          <div className="input-group">
-            <label>Hex:</label>
-            <select
-              value={selectedHexId || ""}
-              onChange={(e) => setSelectedHexId(Number(e.target.value))}
-            >
-              <option value="">Wybierz hex...</option>
-              {hexList.map((hex) => (
-                <option key={hex.id} value={hex.id}>
-                  {hex.name} (ID: {hex.id})
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Zakres czasu */}
-          <div className="input-group">
-            <label>Zakres czasu:</label>
-            <select
-              value={timeRange}
-              onChange={(e) => setTimeRange(e.target.value)}
-              style={{
-                padding: "10px",
-                borderRadius: "8px",
-                border: "1px solid #444",
-                background: "#1e1e1e",
-                color: "white",
-                width: "150px",
-              }}
-            >
-              <option value="all">Cała wojna</option>
-              <option value="7d">Ostatnie 7 aktualizacji</option>
-              <option value="30d">Ostatnie 15 aktualizacji</option>
-              <option value="90d">Ostatnie 30 aktualizacji</option>
-            </select>
-          </div>
-
-          <button
-            className="fetch-button"
-            onClick={handleFetch}
-            disabled={loading || loadingWar || loadingVictory}
-          >
-            {loading ? "Ładowanie..." : "Pobierz"}
-          </button>
+              {((warReport || victoryData || (report && hexInfo) || rangeData) && selectedHexId) ? (
+                <div className="war-and-hex-container">
+                  <div className="warstate-and-vt-container">
+                    {warReport && <WarState report={warReport} warNumber={warReport.warNumber} />}
+                    {victoryData && <VictoryTownCard result={victoryData} />}
+                  </div>
+                  <div className="warstate-chart">
+                    {rangeData && <MapReportRangeChart data={getFilteredRangeData()} />}
+                  </div>
+                  {report && hexInfo && (
+                    <div className="report-container">
+                      <MapReportCard report={report} hexName={hexInfo.name} />
+                      <img
+                        src={
+                          report.colonialCasualties > report.wardenCasualties
+                            ? "/images/colonials.jfif"
+                            : "/images/wardens.jfif"
+                        }
+                        alt="Wynik bitwy"
+                        className="result-image"
+                      />
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div style={{marginTop: '48px', color: '#aaa', fontSize: '1.2rem', textAlign: 'center'}}>
+                  <p>Wybierz hex i kliknij <b>Pobierz</b>, aby zobaczyć raport wojny.</p>
+                </div>
+              )}
+            </>
+          )}
         </div>
-
-        {error && <p className="status-error">{error}</p>}
-        {errorWar && <p className="status-error">{errorWar}</p>}
-        {errorVictory && <p className="status-error">{errorVictory}</p>}
-
-        {(warReport || victoryData || (report && hexInfo) || rangeData) && (
-          <div className="war-and-hex-container">
-            <div className="warstate-and-vt container">
-              {warReport && <WarState report={warReport} warNumber={warReport.warNumber} />}
-              {victoryData && <VictoryTownCard result={victoryData} />}
-            </div>
-
-            <div className="warstate-chart">
-              {rangeData && <MapReportRangeChart data={getFilteredRangeData()} />}
-            </div>
-
-            {report && hexInfo && (
-              <div className="report-container">
-                <MapReportCard report={report} hexName={hexInfo.name} />
-                <img
-                  src={
-                    report.colonialCasualties > report.wardenCasualties
-                      ? "/images/colonials.jfif"
-                      : "/images/wardens.jfif"
-                  }
-                  alt="Wynik bitwy"
-                  className="result-image"
-                />
-              </div>
-            )}
-          </div>
-        )}
       </div>
-    </div>
-  );
-}
+    </>
+  )}
