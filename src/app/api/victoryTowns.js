@@ -1,5 +1,7 @@
+import { API_BASE_URL } from "./config";
+
 export async function fetchVictoryTowns(shardId) {
-  const res = await fetch(`http://127.0.0.1:8000/war_api/dynamic_data/${shardId}`);
+  const res = await fetch(`${API_BASE_URL}/war_api/dynamic_data/${shardId}`);
   if (!res.ok) throw new Error("Nie udało się pobrać danych dynamicznych.");
   const data = await res.json();
 
