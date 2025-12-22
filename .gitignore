@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+.venv
+.python-version
+uv.lock
+__pycache__
+out.json
