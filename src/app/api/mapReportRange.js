@@ -5,7 +5,7 @@ export async function fetchMapReportRange(shardId, hexId, warStartTime) {
   const datetimeFrom = warStartTime.split("T")[0];  // wyciągamy YYYY-MM-DD
   const datetimeTo = "2027-01-01";                 // lub dynamicznie później
 
-  const url = `${API_BASE_URL}/war_api/map_report/range/${shardId}/${hexId}/?datetime_from=${datetimeFrom}&datetime_to=${datetimeTo}`;
+  const url = `${API_BASE_URL}/war_api/map_report/range/${shardId}/${hexId}/?datetime_from=${datetimeFrom}&datetime_to=${datetimeTo}&limit=10000`;
 
   const response = await fetch(url);
   if (!response.ok) {
